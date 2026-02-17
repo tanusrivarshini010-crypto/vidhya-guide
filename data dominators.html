@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidyaguide - Complete Career Mentor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --bg-secondary: #1e293b;
+            --fg: #f1f5f9;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-secondary: #818cf8;
+            --accent-tertiary: #f472b6;
+            --card: rgba(30, 41, 59, 0.7);
+            --border: rgba(148, 163, 184, 0.2);
+            --error: #fb7185;
+            --warning: #fbbf24;
+            --success: #34d399;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+
+        .page { display: none; min-height: 100vh; animation: fadeIn 0.5s ease; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0px); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .bg-pattern {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(129, 140, 248, 0.15) 0%, transparent 50%);
+        }
+
+        .blob {
+            position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.6; animation: float 10s infinite ease-in-out;
+        }
+        .blob-1 { top: 10%; left: 10%; width: 300px; height: 300px; background: rgba(56, 189, 248, 0.2); animation-delay: 0s; }
+        .blob-2 { top: 60%; right: 10%; width: 400px; height: 400px; background: rgba(129, 140, 248, 0.2); animation-delay: 2s; }
+
+        .grid-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* Form Elements */
+        .input-field {
+            width: 100%; padding: 14px 18px; background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border); border-radius: 12px;
+            color: var(--fg); font-size: 15px; transition: all 0.3s ease;
+            outline: none; backdrop-filter: blur(4px);
+        }
+        .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
+        .input-field::placeholder { color: var(--muted); }
+        
+        .btn-primary {
+            width: 100%; padding: 14px 24px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+            border: none; border-radius: 12px; color: #fff;
+            font-weight: 600; font-size: 15px; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(56, 189, 248, 0.5); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-secondary {
+            padding: 12px 20px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border); border-radius: 12px;
+            color: var(--fg); font-weight: 500; font-size: 14px;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: rgba(56, 189, 248, 0.1); }
+
+        .card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 24px; transition: all 0.3s ease;
+            backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
+            z-index: 2000; display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+        
+        .modal-content {
+            background: var(--bg-secondary); border: 1px solid var(--border);
+            border-radius: 24px; width: 100%; max-width: 600px;
+            max-height: 90vh; overflow-y: auto; position: relative;
+            animation: scaleIn 0.3s ease; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        
+        .modal-header {
+            padding: 24px; border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; background: var(--bg-secondary);
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 10;
+        }
+
+        .task-item {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px; background: var(--bg); border-radius: 12px;
+            margin-bottom: 12px; border: 1px solid transparent;
+            transition: all 0.3s ease; cursor: pointer;
+        }
+        .task-item:hover { border-color: var(--border); transform: translateX(5px); }
+        .task-item.done { opacity: 0.6; }
+        .task-item.done span { text-decoration: line-through; color: var(--muted); }
+        
+        .custom-checkbox {
+            width: 24px; height: 24px; border: 2px solid var(--accent);
+            border-radius: 8px; display: flex; align-items: center;
+            justify-content: center; transition: all 0.3s ease; flex-shrink: 0;
+        }
+        .custom-checkbox.checked { background: linear-gradient(135deg, var(--accent), var(--accent-secondary)); border-color: transparent; }
+
+        /* Tabs */
+        .tab-btn {
+            padding: 12px 24px; background: transparent;
+            border: 1px solid var(--border); border-radius: 12px;
+            color: var(--muted); font-weight: 500; cursor: pointer;
+            transition: all 0.3s ease; white-space: nowrap;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            background: var(--card); border-color: var(--accent);
+            color: var(--accent);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s ease; }
+
+        /* Progress Bar */
+        .progress-bar { width: 100%; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-secondary) 100%); border-radius: 4px; transition: width 0.5s ease; }
+
+        /* Goal Selection */
+        .goal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .goal-card {
+            padding: 20px; background: var(--bg); border: 1px solid var(--border);
+            border-radius: 16px; text-align: center; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .goal-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .goal-card.selected { border-color: var(--accent); background: rgba(56, 189, 248, 0.1); box-shadow: 0 0 0 2px var(--accent); }
+
+        /* Resume & Jobs Specific */
+        .resume-section { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 16px; }
+        .skill-tag { display: inline-block; padding: 6px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; font-size: 13px; margin: 4px; transition: all 0.3s ease; }
+        .skill-tag:hover { border-color: var(--accent); color: var(--accent); }
+        
+        .job-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%; }
+        .job-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+        .salary-tag { background: rgba(56, 189, 248, 0.15); color: var(--accent); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; }
+        .job-type-tag { background: rgba(52, 211, 153, 0.15); color: var(--success); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+
+        /* Chatbot - White Theme */
+        .chatbot-container { position: fixed; bottom: 0; left: 0; right: 0; height: 0; background: #ffffff; border-top: 1px solid #e2e8f0; transition: height 0.4s ease; z-index: 1000; display: flex; flex-direction: column; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .chatbot-container.open { height: 70vh; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
+        
+        .chat-toggle { 
+            position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; 
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary)); 
+            border: none; border-radius: 50%; cursor: pointer; z-index: 999; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 8px 30px rgba(56, 189, 248, 0.4); transition: transform 0.3s; 
+        }
+        .chat-toggle:hover { transform: scale(1.1); }
+
+        .chat-header { background: #f8fafc; padding: 16px 24px; border-bottom: 1px solid #e2e8f0; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .chat-msg-user { background: linear-gradient(135deg, var(--accent), var(--accent-secondary)); color: white; padding: 12px 18px; border-radius: 20px 20px 0 20px; margin-left: auto; max-width: 80%; font-size: 14px; }
+        .chat-msg-bot { background: #f1f5f9; color: #334155; padding: 12px 18px; border-radius: 20px 20px 20px 0; margin-right: auto; max-width: 80%; font-size: 14px; border: 1px solid #e2e8f0; line-height: 1.6; }
+        
+        .chat-input-field { background: #f8fafc; border: 1px solid #e2e8f0; color: #1e293b; padding: 12px 16px; border-radius: 12px; outline: none; }
+        .chat-input-field:focus { border-color: var(--accent); }
+
+        .streak-fire { display: inline-block; animation: pulse 1.5s infinite ease-in-out; }
+        
+        .daily-task-card {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(129, 140, 248, 0.1));
+            border: 1px solid var(--accent);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        @media (max-width: 768px) {
+            .chatbot-container.open { height: 85vh; }
+            .goal-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="grid-overlay"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <!-- Goal Selection Modal -->
+    <div id="goal-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header" style="border-bottom: none; background: transparent;">
+                <div>
+                    <h3 class="text-xl font-bold">Select Your Goal</h3>
+                    <p class="text-sm mt-1" style="color: var(--muted)">Choose a path to see your personalized A-Z roadmap.</p>
+                </div>
+            </div>
+            <div class="p-6 pt-0">
+                <div id="goals-container" class="goal-grid"></div>
+                <button id="confirm-goal-btn" onclick="confirmGoalSelection()" class="btn-primary mt-6" disabled>Start Journey</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step Detail Modal -->
+    <div id="step-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <span class="text-xs font-semibold px-2 py-1 rounded" style="background: rgba(56, 189, 248, 0.1); color: var(--accent)">STEP <span id="modal-step-num">1</span></span>
+                    <h3 id="modal-title" class="text-xl font-bold mt-2"></h3>
+                    <p id="modal-desc" class="text-sm mt-1" style="color: var(--muted)"></p>
+                </div>
+                <button onclick="closeModal('step-modal')" class="btn-secondary" style="padding: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm font-semibold" style="color: var(--accent)">Daily Progress</span>
+                    <span id="modal-progress-text" class="text-sm" style="color: var(--muted)">0/0 Completed</span>
+                </div>
+                <div class="progress-bar mb-6"><div id="modal-progress-bar" class="progress-fill" style="width: 0%"></div></div>
+                <div id="modal-tasks"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Page -->
+    <div id="registration-page" class="page active">
+        <div class="min-h-screen flex items-center justify-center p-6 relative z-10">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-10" style="animation: slideUp 0.6s ease">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6" style="background: linear-gradient(135deg, var(--accent), var(--accent-secondary));">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    </div>
+                    <h1 class="text-4xl font-bold mb-2 bg-clip-text text-transparent" style="background-image: linear-gradient(135deg, #fff, #94a3b8)">Vidyaguide</h1>
+                    <p style="color: var(--muted)">Your Personal Career Mentor</p>
+                </div>
+                <div class="card" style="animation: slideUp 0.7s ease;">
+                    <h2 class="text-2xl font-semibold mb-6 text-center">Create Account</h2>
+                    <form id="registration-form" class="space-y-4">
+                        <div><label class="block text-sm mb-2 font-medium" style="color: var(--muted)">Full Name</label><input type="text" id="reg-name" class="input-field" placeholder="Enter your name" required></div>
+                        <div><label class="block text-sm mb-2 font-medium" style="color: var(--muted)">Email Address</label><input type="email" id="reg-email" class="input-field" placeholder="Enter your email" required></div>
+                        <div><label class="block text-sm mb-2 font-medium" style="color: var(--muted)">Phone Number</label><input type="tel" id="reg-phone" class="input-field" placeholder="Enter phone number"></div>
+                        <div><label class="block text-sm mb-2 font-medium" style="color: var(--muted)">Password</label><input type="password" id="reg-password" class="input-field" placeholder="Create a password" required></div>
+                        <div>
+                            <label class="block text-sm mb-2 font-medium" style="color: var(--muted)">Current Status</label>
+                            <select id="reg-status" class="input-field" required>
+                                <option value="">Select Status</option>
+                                <option value="after10th">After 10th (SSC)</option>
+                                <option value="afterInter">After Intermediate (12th)</option>
+                                <option value="afterDiploma">After Diploma</option>
+                                <option value="graduate">Graduate</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary mt-6">Create Account</button>
+                    </form>
+                    <p class="text-center mt-6 text-sm" style="color: var(--muted)">Already have an account? <a href="#" onclick="showPage('login-page')" style="color: var(--accent); font-weight: 600">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login-page" class="page">
+        <div class="min-h-screen flex items-center justify-center p-6 relative z-10">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6" style="background: linear-gradient(135deg, var(--accent), var(--accent-secondary));">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                    </div>
+                    <h1 class="text-4xl font-bold mb-2">Welcome Back</h1>
+                </div>
+                <div class="card">
+                    <form id="login-form" class="space-y-4">
+                        <div><label class="block text-sm mb-2 font-medium" style="color: var(--muted)">Email</label><input type="email" id="login-email" class="input-field" required></div>
+                        <div><label class="block text-sm mb-2 font-medium" style="color: var(--muted)">Password</label><input type="password" id="login-password" class="input-field" required></div>
+                        <div class="text-right">
+                            <a href="#" onclick="showPage('forgot-page')" style="color: var(--accent); font-size: 13px; font-weight: 500;">Forgot Password?</a>
+                        </div>
+                        <button type="submit" class="btn-primary mt-6">Login</button>
+                    </form>
+                    <p class="text-center mt-6 text-sm" style="color: var(--muted)">New user? <a href="#" onclick="showPage('registration-page')" style="color: var(--accent); font-weight: 600">Register</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Page -->
+    <div id="forgot-page" class="page">
+        <div class="min-h-screen flex items-center justify-center p-6 relative z-10">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-10">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6" style="background: linear-gradient(135deg, var(--warning), var(--accent-tertiary));">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <h1 class="text-3xl font-bold mb-2">Reset Password</h1>
+                    <p style="color: var(--muted)">No worries, we'll send you reset instructions.</p>
+                </div>
+                <div class="card">
+                    <div id="reset-step-1">
+                        <form id="forgot-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm mb-2 font-medium" style="color: var(--muted)">Email Address</label>
+                                <input type="email" id="forgot-email" class="input-field" placeholder="Enter your registered email" required>
+                            </div>
+                            <button type="submit" class="btn-primary mt-6">Send Reset Code</button>
+                        </form>
+                        <p class="text-center mt-6 text-sm" style="color: var(--muted)">Remember it? <a href="#" onclick="showPage('login-page')" style="color: var(--accent); font-weight: 600">Back to Login</a></p>
+                    </div>
+
+                    <div id="reset-step-2" class="hidden">
+                        <div class="text-center mb-6">
+                            <p class="text-sm" style="color: var(--muted)">We sent a code to <b id="reset-email-display" style="color: var(--fg)"></b></p>
+                            <p class="text-xs mt-2" style="color: var(--warning);">(Demo: Check the alert box for the OTP)</p>
+                        </div>
+                        <form id="reset-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm mb-2 font-medium" style="color: var(--muted)">Enter 6-digit Code</label>
+                                <input type="text" id="reset-otp" class="input-field text-center tracking-widest" maxlength="6" placeholder="000000" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-2 font-medium" style="color: var(--muted)">New Password</label>
+                                <input type="password" id="new-password" class="input-field" placeholder="Enter new password" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-2 font-medium" style="color: var(--muted)">Confirm Password</label>
+                                <input type="password" id="confirm-password" class="input-field" placeholder="Confirm new password" required>
+                            </div>
+                            <button type="submit" class="btn-primary mt-6">Reset Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard-page" class="page">
+        <div class="relative z-10">
+            <header class="sticky top-0 z-50" style="background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);">
+                <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: linear-gradient(135deg, var(--accent), var(--accent-secondary))">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                        </div>
+                        <span class="text-xl font-bold">Vidyaguide</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span id="user-name-display" class="text-sm hidden md:block font-medium" style="color: var(--muted)"></span>
+                        <button onclick="logout()" class="btn-secondary text-sm">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="max-w-7xl mx-auto px-6 py-8">
+                <section class="mb-10" style="animation: slideUp 0.5s ease">
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3">Hello, <span id="welcome-name" style="color: var(--accent)">User</span></h1>
+                    <p class="text-lg" style="color: var(--muted)">Your journey to <span id="goal-display-header" style="color: var(--accent-secondary); font-weight: 600">Success</span> continues.</p>
+                </section>
+
+                <!-- Stats Cards -->
+                <section class="mb-10 grid md:grid-cols-3 gap-6">
+                    <div class="card hover:border-blue-400 transition-colors">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(56, 189, 248, 0.15)">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            </div>
+                            <div><p class="text-sm" style="color: var(--muted)">Overall Progress</p><p id="progress-percent" class="text-2xl font-bold">0%</p></div>
+                        </div>
+                        <div class="progress-bar"><div id="progress-fill-main" class="progress-fill" style="width: 0%"></div></div>
+                    </div>
+                    
+                    <div class="card hover:border-orange-400 transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(251, 191, 36, 0.15)">
+                                <span class="streak-fire text-2xl">🔥</span>
+                            </div>
+                            <div>
+                                <p class="text-sm" style="color: var(--muted)">Daily Streak</p>
+                                <p id="streak-count" class="text-2xl font-bold">0 Days</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card flex items-center justify-between hover:border-pink-400 transition-colors">
+                         <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(244, 114, 182, 0.15)">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-tertiary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                            </div>
+                            <div><p class="text-sm" style="color: var(--muted)">Goal</p><p id="goal-display" class="text-lg font-semibold truncate" style="max-width: 150px;">Not Set</p></div>
+                        </div>
+                        <button onclick="openGoalModal()" class="btn-secondary text-xs" style="padding: 8px;">Change</button>
+                    </div>
+                </section>
+
+                <!-- Daily Task Highlight -->
+                <section id="daily-focus-section" class="mb-10 hidden">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <span>⚡</span> Today's Focus
+                    </h2>
+                    <div id="daily-focus-card" class="card daily-task-card cursor-pointer">
+                        <!-- Filled by JS -->
+                    </div>
+                </section>
+
+                <!-- Tabs Navigation -->
+                <div class="flex gap-2 mb-8 overflow-x-auto pb-2">
+                    <button class="tab-btn active" onclick="switchTab('career', this)">Career Path</button>
+                    <button class="tab-btn" onclick="switchTab('resume', this)">Resume Builder</button>
+                    <button class="tab-btn" onclick="switchTab('jobs', this)">Opportunities</button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div id="career-tab" class="tab-content active">
+                    <div id="career-path-container"></div>
+                </div>
+
+                <div id="resume-tab" class="tab-content">
+                    <div class="grid lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2">
+                            <div class="resume-section">
+                                <h3 class="text-lg font-semibold mb-4">Personal Information</h3>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <input type="text" id="resume-name" class="input-field" placeholder="Full Name">
+                                    <input type="email" id="resume-email" class="input-field" placeholder="Email">
+                                    <input type="tel" id="resume-phone" class="input-field" placeholder="Phone Number">
+                                    <input type="text" id="resume-location" class="input-field" placeholder="Location">
+                                </div>
+                            </div>
+
+                            <div class="resume-section">
+                                <h3 class="text-lg font-semibold mb-4">Professional Summary</h3>
+                                <textarea id="resume-summary" class="input-field" rows="4" placeholder="Write a brief summary..."></textarea>
+                            </div>
+
+                            <div class="resume-section">
+                                <h3 class="text-lg font-semibold mb-4">Skills</h3>
+                                <div class="flex flex-wrap gap-2" id="skills-container"></div>
+                                <div class="mt-4 flex gap-2">
+                                    <input type="text" id="new-skill" class="input-field" style="width: auto; flex: 1;" placeholder="Add a skill">
+                                    <button onclick="addSkill()" class="btn-secondary">Add</button>
+                                </div>
+                            </div>
+
+                            <button onclick="generateResume()" class="btn-primary mt-6" style="width: auto;">Generate Preview</button>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Preview</h3>
+                            <div id="resume-preview" class="card" style="background: white; color: #1a1a1a; min-height: 400px;">
+                                <p class="text-center p-6" style="color: var(--muted)">Fill details to preview</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="jobs-tab" class="tab-content">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-bold mb-2">Recommended for You</h2>
+                        <p class="text-sm" style="color: var(--muted)">Based on your current status: <span id="status-label" class="font-semibold text-white"></span></p>
+                    </div>
+                    
+                    <div class="mb-6 flex flex-wrap gap-4 items-center">
+                        <input type="text" id="job-search" class="input-field" style="width: auto; flex: 1; min-width: 200px;" placeholder="Search..." oninput="filterJobs()">
+                        <select id="job-filter" class="input-field" style="width: auto;" onchange="filterJobs()">
+                            <option value="all">All Types</option>
+                            <option value="job">Jobs</option>
+                            <option value="internship">Internships</option>
+                            <option value="course">Courses</option>
+                        </select>
+                    </div>
+                    <div id="jobs-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Jobs loaded here -->
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+        <!-- Chatbot -->
+        <button class="chat-toggle" onclick="toggleChatbot()" aria-label="Chat">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <div id="chatbot-container" class="chatbot-container">
+            <div class="chat-header">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">AI</div>
+                        <h3 class="font-bold text-gray-800">Vidya Assistant</h3>
+                    </div>
+                    <button onclick="toggleChatbot()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50"></div>
+            <div class="p-4 border-t border-slate-200 flex gap-2 bg-white">
+                <input type="text" id="chat-input" class="chat-input-field flex-1" placeholder="Ask about careers (e.g., 'How to become a Pilot')..." onkeypress="if(event.key==='Enter')sendChat()">
+                <button onclick="sendChat()" class="btn-primary" style="width: auto; padding: 10px 20px; border-radius: 10px;">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CAREER DATA ==========
+        const careerData = {
+            after10th: {
+                title: "After 10th Standard",
+                goals: {
+                    "Science (MPC)": [
+                        { id: 1, title: "Foundation & Stream Selection", desc: "Strengthen basics for JEE/Engineering", sub: ["Master Math & Physics basics", "Solve 20 reasoning questions daily", "Research IIT/NIT colleges"] },
+                        { id: 2, title: "Intermediate Year 1", desc: "First year focus", sub: ["Complete syllabus on time", "Start JEE Foundation course", "Join test series"] }
+                    ],
+                    "Science (BiPC)": [
+                        { id: 1, title: "Medical Foundation", desc: "Prepare for NEET/AIIMS", sub: ["Master Biology NCERT", "Memorize key diagrams", "Basic Chemistry concepts"] },
+                        { id: 2, title: "Practicals & Theory", desc: "Balance both aspects", sub: ["Practice diagrams", "Perform lab experiments", "Time management"] }
+                    ],
+                    "Commerce (CEC)": [
+                        { id: 1, title: "Commerce Basics", desc: "Introduction to Accountancy & Economics", sub: ["Learn accounting rules", "Read business news daily", "Understand market basics"] }
+                    ],
+                    "Polytechnic (Diploma)": [
+                        { id: 1, title: "Branch Selection", desc: "Mech/Civil/ECE/CSE/EEE", sub: ["Understand job roles", "Check college affiliations", "Apply for POLYCET"] }
+                    ]
+                }
+            },
+            afterInter: {
+                title: "After Intermediate",
+                goals: {
+                    "Engineering (B.Tech)": [
+                        { id: 1, title: "Entrance Exams", desc: "JEE Main/Advanced, EAMCET", sub: ["Solve Previous papers", "Focus on High Weightage topics", "Mock tests daily"] },
+                        { id: 2, title: "First Year Prep", desc: "Start strong", sub: ["Learn C/C++ basics", "Math revision", "Communication skills"] }
+                    ],
+                    "Medical (MBBS/BDS)": [
+                        { id: 1, title: "NEET Preparation", desc: "The ultimate medical exam", sub: ["NCERT Mastery", "Biology Revision", "Mock Tests"] }
+                    ]
+                }
+            },
+            afterDiploma: {
+                title: "After Diploma",
+                goals: {
+                    "B.Tech (Lateral Entry)": [
+                        { id: 1, title: "ECET/JELET Prep", desc: "Get into engineering college", sub: ["Core subject revision", "Previous papers", "Rank analysis"] }
+                    ],
+                    "Job (Junior Engineer)": [
+                        { id: 1, title: "Job Hunt", desc: "Enter workforce", sub: ["Update resume", "Apply on job portals", "Prepare for technical interviews"] }
+                    ]
+                }
+            },
+            graduate: {
+                title: "Graduate",
+                goals: {
+                    "Job (IT/Software)": [
+                        { id: 1, title: "Placement Prep", desc: "Get hired in MNCs", sub: ["Aptitude practice", "Coding (HackerRank)", "Resume building"] }
+                    ],
+                    "Higher Studies (MS/MBA)": [
+                        { id: 1, title: "Exam Prep", desc: "GRE/GMAT/CAT", sub: ["Quantitative Aptitude", "Verbal Reasoning", "Mock Tests"] }
+                    ]
+                }
+            }
+        };
+
+        // ========== SMART JOBS DATA (Filtered by Status) ==========
+        const allJobs = [
+            // For 10th Graders
+            { title: "Polytechnic Admission", company: "State Colleges", salary: "Low Cost", location: "AP/TS", type: "course", skills: ["Mechanical", "Civil", "CSE"], description: "Join 3-year diploma courses after 10th.", forStatus: ['after10th'] },
+            { title: "ITI Apprentice", company: "Railways / Industries", salary: "Stipend Based", location: "India", type: "internship", skills: ["Fitter", "Welder", "Electrician"], description: "Learn vocational skills and earn stipend.", forStatus: ['after10th'] },
+            
+            // For Inter/Diploma
+            { title: "Junior Engineer (JE)", company: "L&T Construction", salary: "2.5 - 3.5 LPA", location: "Mumbai", type: "job", skills: ["AutoCAD", "Site Management"], description: "Site supervision and drafting.", forStatus: ['afterDiploma', 'afterInter'] },
+            { title: "BPO Voice Process", company: "Concentrix", salary: "2.0 - 3.0 LPA", location: "Hyderabad", type: "job", skills: ["Communication", "English"], description: "Customer support roles for freshers.", forStatus: ['afterInter', 'graduate'] },
+            { title: "Diploma Apprentice", company: "BHEL", salary: "₹10k/month", location: "Bangalore", type: "internship", skills: ["Technical Drawing", "Basics"], description: "Government apprenticeship for diploma holders.", forStatus: ['afterDiploma'] },
+
+            // For Graduates
+            { title: "Frontend Developer", company: "Google", salary: "12 - 20 LPA", location: "Hyderabad", type: "job", skills: ["React", "JavaScript", "CSS"], description: "Build user interfaces for large-scale applications.", forStatus: ['graduate'] },
+            { title: "Data Analyst", company: "Infosys", salary: "6 - 9 LPA", location: "Pune", type: "job", skills: ["SQL", "Python", "Excel"], description: "Analyze data to drive business decisions.", forStatus: ['graduate'] },
+            { title: "Marketing Manager", company: "Swiggy", salary: "10 - 18 LPA", location: "Gurugram", type: "job", skills: ["SEO", "Content Strategy"], description: "Lead marketing campaigns.", forStatus: ['graduate'] },
+            
+            // Universal / All
+            { title: "Skill Development Course", company: "Coursera / Udemy", salary: "Paid Course", location: "Online", type: "course", skills: ["Any"], description: "Online certifications to boost your resume.", forStatus: ['after10th', 'afterInter', 'afterDiploma', 'graduate'] }
+        ];
+
+        const xmlDataStore = {
+            users: JSON.parse(localStorage.getItem('vidyaguide_users') || '[]'),
+            currentUser: JSON.parse(localStorage.getItem('currentUser') || 'null'),
+            activeStep: null,
+            tempResetData: null
+        };
+
+        let skills = [];
+
+        // ========== NAVIGATION ==========
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId + '-tab').classList.add('active');
+            btnElement.classList.add('active');
+            
+            if(tabId === 'jobs') loadJobs(); // Reload jobs when switching to jobs tab
+        }
+
+        // ========== AUTH ==========
+        document.getElementById('registration-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const user = {
+                id: Date.now(),
+                name: document.getElementById('reg-name').value,
+                email: document.getElementById('reg-email').value,
+                phone: document.getElementById('reg-phone').value,
+                password: document.getElementById('reg-password').value,
+                status: document.getElementById('reg-status').value,
+                goal: null,
+                streak: 0,
+                lastVisit: null,
+                roadmapData: null
+            };
+            if (xmlDataStore.users.find(u => u.email === user.email)) return alert('User exists');
+            xmlDataStore.users.push(user);
+            localStorage.setItem('vidyaguide_users', JSON.stringify(xmlDataStore.users));
+            alert('Registered!');
+            showPage('login-page');
+        });
+
+        document.getElementById('login-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const user = xmlDataStore.users.find(u => u.email === document.getElementById('login-email').value && u.password === document.getElementById('login-password').value);
+            if (user) {
+                xmlDataStore.currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                initDashboard();
+                showPage('dashboard-page');
+            } else alert('Invalid credentials');
+        });
+
+        // ========== FORGOT PASSWORD LOGIC ==========
+        document.getElementById('forgot-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email').value;
+            const userIndex = xmlDataStore.users.findIndex(u => u.email === email);
+            if (userIndex !== -1) {
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                xmlDataStore.tempResetData = { email: email, otp: otp, userIndex: userIndex };
+                alert(`DEMO ONLY: Your OTP is ${otp}.`);
+                document.getElementById('reset-email-display').innerText = email;
+                document.getElementById('reset-step-1').classList.add('hidden');
+                document.getElementById('reset-step-2').classList.remove('hidden');
+            } else {
+                alert('No account found with this email.');
+            }
+        });
+
+        document.getElementById('reset-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const otpInput = document.getElementById('reset-otp').value;
+            const newPass = document.getElementById('new-password').value;
+            const confirmPass = document.getElementById('confirm-password').value;
+            if (!xmlDataStore.tempResetData) return alert('Session expired.');
+            if (otpInput !== xmlDataStore.tempResetData.otp) return alert('Invalid OTP.');
+            if (newPass !== confirmPass) return alert('Passwords do not match.');
+            xmlDataStore.users[xmlDataStore.tempResetData.userIndex].password = newPass;
+            localStorage.setItem('vidyaguide_users', JSON.stringify(xmlDataStore.users));
+            alert('Password updated! Please login.');
+            xmlDataStore.tempResetData = null;
+            showPage('login-page');
+            document.getElementById('reset-step-1').classList.remove('hidden');
+            document.getElementById('reset-step-2').classList.add('hidden');
+        });
+
+        function logout() {
+            xmlDataStore.currentUser = null;
+            localStorage.removeItem('currentUser');
+            showPage('login-page');
+        }
+
+        // ========== DASHBOARD ==========
+        function updateStreak() {
+            const user = xmlDataStore.currentUser;
+            const today = new Date().toDateString();
+            if (user.lastVisit !== today) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                user.streak = (user.lastVisit === yesterday.toDateString()) ? user.streak + 1 : 1;
+                user.lastVisit = today;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+            }
+            document.getElementById('streak-count').innerText = user.streak + " Days";
+        }
+
+        function initDashboard() {
+            const user = xmlDataStore.currentUser;
+            document.getElementById('welcome-name').innerText = user.name.split(' ')[0];
+            document.getElementById('user-name-display').innerText = user.name;
+            document.getElementById('resume-name').value = user.name || '';
+            document.getElementById('resume-email').value = user.email || '';
+            document.getElementById('resume-phone').value = user.phone || '';
+            
+            updateStreak();
+            
+            if (!user.goal) {
+                openGoalModal();
+                document.getElementById('career-path-container').innerHTML = `<div class="card text-center"><h3>Select a Goal to view Roadmap</h3></div>`;
+            } else {
+                document.getElementById('goal-display').innerText = user.goal;
+                document.getElementById('goal-display-header').innerText = user.goal;
+                loadCareerPath();
+                loadDailyFocus();
+            }
+        }
+
+        // ... (Daily Focus, Goal Modal, Career Path Logic omitted for brevity - remains same) ...
+
+        function loadDailyFocus() {
+            const user = xmlDataStore.currentUser;
+            if(!user.roadmapData) return;
+            const currentStepIndex = user.roadmapData.findIndex(step => !step.completed);
+            if(currentStepIndex === -1) return document.getElementById('daily-focus-section').classList.add('hidden');
+            const step = user.roadmapData[currentStepIndex];
+            const incompleteTasks = step.sub.filter(t => !t.done);
+            if(incompleteTasks.length === 0) return document.getElementById('daily-focus-section').classList.add('hidden');
+            
+            document.getElementById('daily-focus-section').classList.remove('hidden');
+            document.getElementById('daily-focus-card').innerHTML = `
+                <div onclick="openStepModal(${currentStepIndex})">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-bold text-blue-300">CURRENT PRIORITY</span>
+                            <h3 class="text-xl font-bold mt-1">${step.title}</h3>
+                        </div>
+                        <span class="text-3xl">🎯</span>
+                    </div>
+                    <div class="mt-4 p-3 rounded-lg" style="background: rgba(0,0,0,0.2);">
+                        <p class="text-sm"><b>Next Task:</b> ${incompleteTasks[0].text}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openGoalModal() {
+            const user = xmlDataStore.currentUser;
+            if(!user || !user.status) return;
+            const goals = Object.keys(careerData[user.status].goals);
+            document.getElementById('goals-container').innerHTML = goals.map(g => `
+                <div class="goal-card ${user.goal === g ? 'selected' : ''}" onclick="selectGoal('${g}')">
+                    <div class="font-semibold text-sm">${g}</div>
+                </div>
+            `).join('');
+            document.getElementById('goal-modal').classList.add('active');
+        }
+
+        function selectGoal(goal) {
+            xmlDataStore.currentUser.goal = goal;
+            localStorage.setItem('currentUser', JSON.stringify(xmlDataStore.currentUser));
+            document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            document.getElementById('confirm-goal-btn').disabled = false;
+        }
+
+        function confirmGoalSelection() {
+            xmlDataStore.currentUser.roadmapData = null;
+            document.getElementById('goal-modal').classList.remove('active');
+            document.getElementById('goal-display').innerText = xmlDataStore.currentUser.goal;
+            document.getElementById('goal-display-header').innerText = xmlDataStore.currentUser.goal;
+            loadCareerPath();
+            loadDailyFocus();
+        }
+
+        function loadCareerPath() {
+            const user = xmlDataStore.currentUser;
+            const statusData = careerData[user.status];
+            if (!user.roadmapData) {
+                const steps = statusData.goals[user.goal];
+                user.roadmapData = steps.map(s => ({...s, sub: s.sub.map(t => ({text: t, done: false})), completed: false}));
+                localStorage.setItem('currentUser', JSON.stringify(user));
+            }
+            const steps = user.roadmapData;
+            let html = `<div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">${statusData.title}</h2></div>`;
+            steps.forEach((step, idx) => {
+                const doneCount = step.sub.filter(s => s.done).length;
+                const total = step.sub.length;
+                const progress = total > 0 ? (doneCount/total)*100 : 0;
+                html += `
+                    <div class="card cursor-pointer hover:border-blue-400" onclick="openStepModal(${idx})">
+                        <h4 class="font-semibold text-lg">${step.title}</h4>
+                        <div class="progress-bar mt-3"><div class="progress-fill" style="width:${progress}%"></div></div>
+                        <p class="text-xs mt-2" style="color: var(--muted)">${doneCount}/${total} tasks done</p>
+                    </div>
+                `;
+            });
+            document.getElementById('career-path-container').innerHTML = html;
+            updateOverallProgress();
+        }
+
+        function openStepModal(index) {
+            xmlDataStore.activeStep = index;
+            const step = xmlDataStore.currentUser.roadmapData[index];
+            document.getElementById('modal-title').innerText = step.title;
+            renderModalTasks(step);
+            document.getElementById('step-modal').classList.add('active');
+        }
+
+        function renderModalTasks(step) {
+            document.getElementById('modal-tasks').innerHTML = step.sub.map((task, i) => `
+                <div class="task-item ${task.done ? 'done' : ''}" onclick="toggleTask(${i})">
+                    <div class="custom-checkbox ${task.done ? 'checked' : ''}">
+                        ${task.done ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                    </div>
+                    <span class="flex-1">${task.text}</span>
+                </div>
+            `).join('');
+        }
+
+        function toggleTask(index) {
+            const step = xmlDataStore.currentUser.roadmapData[xmlDataStore.activeStep];
+            step.sub[index].done = !step.sub[index].done;
+            localStorage.setItem('currentUser', JSON.stringify(xmlDataStore.currentUser));
+            renderModalTasks(step);
+            loadCareerPath();
+            loadDailyFocus();
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function updateOverallProgress() {
+            const steps = xmlDataStore.currentUser.roadmapData || [];
+            let totalTasks = 0, doneTasks = 0;
+            steps.forEach(s => { totalTasks += s.sub.length; doneTasks += s.sub.filter(t => t.done).length; });
+            const percent = totalTasks > 0 ? Math.round((doneTasks/totalTasks)*100) : 0;
+            document.getElementById('progress-percent').innerText = percent + '%';
+            document.getElementById('progress-fill-main').style.width = percent + '%';
+        }
+
+        // ========== SMART JOBS LOGIC ==========
+        function loadJobs() {
+            const user = xmlDataStore.currentUser;
+            const statusLabel = {
+                'after10th': 'After 10th',
+                'afterInter': 'After Intermediate',
+                'afterDiploma': 'After Diploma',
+                'graduate': 'Graduate'
+            };
+            document.getElementById('status-label').innerText = statusLabel[user.status];
+            
+            // Filter jobs based on user status
+            const relevantJobs = allJobs.filter(job => job.forStatus.includes(user.status));
+            renderJobList(relevantJobs);
+        }
+
+        function filterJobs() {
+            const searchTerm = document.getElementById('job-search').value.toLowerCase();
+            const category = document.getElementById('job-filter').value;
+            const user = xmlDataStore.currentUser;
+            
+            let filtered = allJobs.filter(job => job.forStatus.includes(user.status));
+
+            if (searchTerm) {
+                filtered = filtered.filter(job => 
+                    job.title.toLowerCase().includes(searchTerm) || 
+                    job.company.toLowerCase().includes(searchTerm)
+                );
+            }
+            if (category !== 'all') {
+                filtered = filtered.filter(job => job.type === category);
+            }
+            renderJobList(filtered);
+        }
+
+        function renderJobList(jobs) {
+            const container = document.getElementById('jobs-list');
+            if(jobs.length === 0) {
+                container.innerHTML = `<div class="card text-center col-span-3"><h3>No opportunities found for your criteria.</h3></div>`;
+                return;
+            }
+            container.innerHTML = jobs.map(job => `
+                <div class="job-card">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="job-type-tag">${job.type}</span>
+                            <h4 class="font-semibold mt-1">${job.title}</h4>
+                            <p class="text-sm" style="color: var(--muted)">${job.company}</p>
+                        </div>
+                    </div>
+                    <p class="text-sm mb-3 flex-grow" style="color: var(--muted)">${job.description}</p>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        ${job.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                    <div class="flex justify-between items-center mt-auto pt-4 border-t" style="border-color: var(--border);">
+                        <div>
+                            <span class="text-xs block" style="color: var(--muted)">${job.location}</span>
+                            <span class="text-sm font-bold" style="color: var(--success)">${job.salary}</span>
+                        </div>
+                        <button onclick="applyJob('${job.title}')" class="btn-secondary text-xs">Apply</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function applyJob(title) { alert(`Applied for ${title}!`); }
+
+        // ========== RESUME LOGIC ==========
+        function addSkill() {
+            const input = document.getElementById('new-skill');
+            if (input.value.trim()) { skills.push(input.value.trim()); renderSkills(); input.value = ''; }
+        }
+        function renderSkills() { document.getElementById('skills-container').innerHTML = skills.map((s, i) => `<span class="skill-tag" onclick="removeSkill(${i})">${s} ×</span>`).join(''); }
+        function removeSkill(index) { skills.splice(index, 1); renderSkills(); }
+        function generateResume() {
+            const name = document.getElementById('resume-name').value;
+            const email = document.getElementById('resume-email').value;
+            document.getElementById('resume-preview').innerHTML = `<div style="padding: 20px;"><h2 style="font-size: 24px; color: #1a2332;">${name}</h2><p style="color: #64748b;">${email}</p><hr style="margin: 10px 0;"/><p style="font-size: 13px;">Skills: ${skills.join(', ')}</p></div>`;
+        }
+
+        // ========== SUPER SMART CHATBOT LOGIC ==========
+        function toggleChatbot() { 
+            const c = document.getElementById('chatbot-container');
+            c.classList.toggle('open');
+            if(c.classList.contains('open') && document.getElementById('chat-messages').innerText === "") {
+                 addBotMessage("Hi! 👋 I am your personalized career assistant. I can help you with roadmaps for <b>Engineering, Medical, Pilot, Law</b> and more based on your education level. Try asking 'How to become a Pilot'");
+            }
+        }
+        function addBotMessage(text) { document.getElementById('chat-messages').innerHTML += `<div class="chat-msg-bot">${text}</div>`; }
+        function addUserMessage(text) { document.getElementById('chat-messages').innerHTML += `<div class="chat-msg-user">${text}</div>`; }
+
+        function getSmartResponse(msg) {
+            msg = msg.toLowerCase();
+            const user = xmlDataStore.currentUser;
+            const status = user ? user.status : 'afterInter'; // Default fallback
+
+            // --- PILOT LOGIC ---
+            if (msg.includes("pilot") || msg.includes("flying")) {
+                if (status === 'after10th') {
+                    return "✈️ <b>Become a Pilot (After 10th Roadmap):</b><br>1. Take <b>Science (MPC)</b> in Intermediate.<br>2. Focus on Physics & Math (Min 50% marks).<br>3. Improve English communication.<br>4. After 12th, apply to Flying Schools.<br>💰 Cost: ₹50-80 Lakhs (Training).";
+                } else if (status === 'afterInter') {
+                    return "✈️ <b>Become a Pilot (After 12th Roadmap):</b><br>1. Clear Class 2 Medical Fitness test.<br>2. Apply for <b>Student Pilot License (SPL)</b>.<br>3. Join a DGCA approved flying school.<br>4. Complete 200 flying hours for CPL.<br>💰 Salary: ₹1.5 - 5 Lakh/month.";
+                } else {
+                    return "✈️ <b>Become a Pilot (Graduate):</b><br>If you have a B.Sc, you can join flying schools directly. If you are over 30, it might be expensive to start fresh. Consider becoming an <b>Air Traffic Controller</b> or <b>Ground Staff</b> via MBA/Aviation courses.";
+                }
+            }
+
+            // --- DOCTOR/MBBS LOGIC ---
+            if (msg.includes("doctor") || msg.includes("mbbs") || msg.includes("medical")) {
+                if (status === 'after10th') {
+                    return "⚕️ <b>Become a Doctor (After 10th):</b><br>1. Choose <b>BiPC (Biology)</b> stream.<br>2. Master NCERT Biology diagrams.<br>3. Start NEET foundation coaching.<br>🎯 Goal: Crack NEET with 600+ score.";
+                } else if (status === 'afterInter') {
+                    return "⚕️ <b>Become a Doctor (After 12th):</b><br>1. <b>NEET UG</b> is the only entrance.<br>2. Alternatives: <b>BDS</b> (Dental), <b>BAMS</b> (Ayurveda), <b>B.Pharm</b>.<br>💰 Investment: ₹10-80 Lakhs (depending on college).";
+                } else {
+                    return "⚕️ <b>Medical for Graduates:</b><br>You cannot do MBBS easily now. Try <b>MSc Clinical Research</b>, <b>Public Health</b>, or <b>Hospital Administration</b>.";
+                }
+            }
+
+            // --- IAS/IPS/GOVT LOGIC ---
+            if (msg.includes("ias") || msg.includes("ips") || msg.includes("upsc") || msg.includes("civils")) {
+                return "🏛️ <b>Civil Services Roadmap:</b><br>1. <b>Degree</b> is mandatory (Any stream).<br>2. Start reading <b>The Hindu</b> daily.<br>3. Read NCERTs (6-12 class).<br>4. Choose Optional Subject based on your degree.<br>🎯 Attempts: 6 (General).";
+            }
+
+            // --- ENGINEERING LOGIC ---
+            if (msg.includes("engineer") || msg.includes("developer") || msg.includes("it job") || msg.includes("software")) {
+                if (status === 'after10th') {
+                    return "💻 <b>Engineering Path (After 10th):</b><br>1. Take <b>MPC</b> stream.<br>2. Prepare for <b>JEE Main</b> or <b>EAMCET</b>.<br>3. Learn basic coding (Python/C++).<br>4. Focus on Math concepts.";
+                } else if (status === 'graduate') {
+                    return "💻 <b>Software Jobs (Graduate):</b><br>1. Master <b>DSA</b> (Data Structures).<br>2. Build 2-3 projects on GitHub.<br>3. Apply on LinkedIn/Naukri.<br>💰 Avg Salary: ₹6-12 LPA.";
+                }
+            }
+
+            // --- DEFAULT / GENERAL ---
+            if (msg.includes("hello") || msg.includes("hi")) return "Hello! 👋 Tell me what career you want (e.g., 'Pilot', 'IAS', 'Doctor') and I will give you the A-Z roadmap based on your profile.";
+            
+            return "I have detailed roadmaps for <b>Pilot, Doctor, IAS, Engineer, Lawyer</b>. Please ask specific questions like 'How to become a Pilot' to get started.";
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value;
+            if(!msg.trim()) return;
+            addUserMessage(msg);
+            input.value = '';
+            setTimeout(() => { addBotMessage(getSmartResponse(msg)); }, 500);
+        }
+
+        // INIT
+        if (xmlDataStore.currentUser) {
+            initDashboard();
+            showPage('dashboard-page');
+        }
+    </script>
+</body>
+</html>
